@@ -1,12 +1,5 @@
 basePath: /api
 definitions:
-  controlerAuth.User:
-    properties:
-      login:
-        type: string
-      password:
-        type: string
-    type: object
   models.AddressGeo:
     description: AddressGeo represents the geocode result for an address.
     properties:
@@ -75,7 +68,7 @@ paths:
       - application/json
       operationId: geocodeAddress
       parameters:
-      - description: Geocode Request
+      - description: Geocode request
         in: body
         name: request
         required: true
@@ -90,8 +83,6 @@ paths:
             $ref: '#/definitions/models.AddressGeo'
         "500":
           description: Internal Server Error
-      security:
-      - ApiKeyAuth: []
       summary: Geocode an address
       tags:
       - geocode
@@ -101,7 +92,7 @@ paths:
       - application/json
       operationId: searchAddress
       parameters:
-      - description: Search Request
+      - description: Search request
         in: body
         name: request
         required: true
@@ -116,58 +107,7 @@ paths:
             $ref: '#/definitions/models.AddressSearch'
         "500":
           description: Internal Server Error
-      security:
-      - ApiKeyAuth: []
       summary: Search for an address
       tags:
       - search
-  /login:
-    post:
-      consumes:
-      - application/json
-      operationId: loginUser
-      parameters:
-      - description: User
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/controlerAuth.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: JWT token
-        "401":
-          description: Invalid credentials
-      summary: Log in a user
-      tags:
-      - SingIn
-  /register:
-    post:
-      consumes:
-      - application/json
-      operationId: registerUser
-      parameters:
-      - description: User
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/controlerAuth.User'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: User registered successfully
-        "400":
-          description: Invalid request format
-      summary: Register a new user
-      tags:
-      - SingUp
-securityDefinitions:
-  ApiKeyAuth:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

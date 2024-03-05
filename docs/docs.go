@@ -18,11 +18,6 @@ const docTemplate = `{
     "paths": {
         "/address/geocode": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -36,7 +31,7 @@ const docTemplate = `{
                 "operationId": "geocodeAddress",
                 "parameters": [
                     {
-                        "description": "Geocode Request",
+                        "description": "Geocode request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -60,11 +55,6 @@ const docTemplate = `{
         },
         "/address/search": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -78,7 +68,7 @@ const docTemplate = `{
                 "operationId": "searchAddress",
                 "parameters": [
                     {
-                        "description": "Search Request",
+                        "description": "Search request",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -99,88 +89,9 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/login": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "SingIn"
-                ],
-                "summary": "Log in a user",
-                "operationId": "loginUser",
-                "parameters": [
-                    {
-                        "description": "User",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controlerAuth.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "JWT token"
-                    },
-                    "401": {
-                        "description": "Invalid credentials"
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "SingUp"
-                ],
-                "summary": "Register a new user",
-                "operationId": "registerUser",
-                "parameters": [
-                    {
-                        "description": "User",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controlerAuth.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "User registered successfully"
-                    },
-                    "400": {
-                        "description": "Invalid request format"
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "controlerAuth.User": {
-            "type": "object",
-            "properties": {
-                "login": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
         "models.AddressGeo": {
             "description": "AddressGeo represents the geocode result for an address.",
             "type": "object",
@@ -261,13 +172,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "ApiKeyAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }`

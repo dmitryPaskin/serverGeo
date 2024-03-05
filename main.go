@@ -10,11 +10,7 @@ import (
 // @host localhost:8080
 // @termsOfService http://localhost:8080/swagger/index.html
 // @BasePath /api
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
 func main() {
-	r := router.NewRouter("/api/address/geocode", "/api/address/search")
+	r := router.New("/api/address/geocode", "/api/address/search")
 	r.StartRouter()
 }

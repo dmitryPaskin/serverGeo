@@ -3,7 +3,8 @@ package router
 import (
 	_ "GeoAPI/docs"
 	"GeoAPI/internal/controller"
-	"GeoAPI/internal/controller/Auth"
+	"GeoAPI/internal/controller/responder"
+	"GeoAPI/internal/service"
 	"context"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -19,32 +20,36 @@ import (
 type Router struct {
 	patternGeo    string
 	patternSearch string
-	rout          *chi.Mux
+	chi           *chi.Mux
+	handler       controller.Handler
 }
 
-func NewRouter(patternGeo, patternSearch string) Router {
-	return Router{
-		patternGeo,
-		patternSearch,
-		chi.NewRouter(),
-	}
+func New(patternGeo, patternSearch string) Router {
+	var router Router
+
+	router.patternSearch = patternSearch
+	router.patternGeo = patternGeo
+	router.chi = chi.NewRouter()
+
+	s := service.New(&http.Client{})
+	r := responder.New()
+	router.handler = controller.New(s, r)
+
+	return router
 }
 
 func (r *Router) StartRouter() {
-	r.rout.Use(middleware.Recoverer)
-	r.rout.Use(middleware.Logger)
+	r.chi.Use(middleware.Recoverer)
+	r.chi.Use(middleware.Logger)
 
-	r.rout.Post("/api/register", controlerAuth.SingUpHandler)
-	r.rout.Post("/api/login", controlerAuth.SingInHandler)
+	r.chi.Post(r.patternSearch, r.handler.SearchAddressHandler)
+	r.chi.Post(r.patternGeo, r.handler.GeocodeHandler)
 
-	r.rout.With(controlerAuth.TokenMiddleware).Post(r.patternSearch, controller.SearchAddressHandler)
-	r.rout.With(controlerAuth.TokenMiddleware).Post(r.patternGeo, controller.GeocodeHandler)
-
-	r.rout.Get("/swagger/*", httpSwagger.WrapHandler)
+	r.chi.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	server := &http.Server{
 		Addr:         ":8080",
-		Handler:      r.rout,
+		Handler:      r.chi,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
