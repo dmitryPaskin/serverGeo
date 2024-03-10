@@ -4,14 +4,15 @@ WORKDIR /app
 
 COPY . .
 
-RUN go get -d -v
-RUN go build -o main
+RUN go mod download
 
+RUN go build -o main .
 
 FROM alpine:latest
 
-COPY --from=builder /app/main /main
+COPY --from=builder /app/main .
+COPY --from=builder /app/.env .
 
 EXPOSE 8080
 
-CMD ["/main"]
+CMD ["./main"]

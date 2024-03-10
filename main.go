@@ -1,7 +1,7 @@
 package main
 
 import (
-	"GeoAPI/router"
+	"GeoAPI/internal/router"
 )
 
 // @title My API

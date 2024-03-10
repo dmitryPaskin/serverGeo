@@ -2,6 +2,8 @@ package controller
 
 import (
 	"GeoAPI/internal/controller/responder"
+	"GeoAPI/internal/db"
+	"GeoAPI/internal/repository"
 	"GeoAPI/internal/service"
 	"GeoAPI/internal/service/models"
 	"encoding/json"
@@ -31,11 +33,14 @@ func New(serv service.Service, respond responder.Responder) Handler {
 // @Router /address/search [post]
 func (h *Handler) SearchAddressHandler(w http.ResponseWriter, r *http.Request) {
 	var searchRequest models.SearchRequest
-	err := json.NewDecoder(r.Body).Decode(&searchRequest)
+	err := json.NewDecoder(r.Body).Decode(&searchRequest.Query)
 	if err != nil {
 		h.r.RespondWithErr(w, err)
 		return
 	}
+	db, err := db.New()
+	searchRequest.Cache = repository.New(db.DB)
+
 	address, err := h.s.Address(searchRequest)
 	if err != nil {
 		h.r.RespondWithErr(w, err)
