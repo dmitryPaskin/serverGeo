@@ -4,10 +4,12 @@ import (
 	_ "GeoAPI/docs"
 	"GeoAPI/internal/controller"
 	"GeoAPI/internal/controller/responder"
+	"GeoAPI/internal/profiling"
 	"GeoAPI/internal/service"
 	"context"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/jwtauth"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
@@ -39,13 +41,22 @@ func New(patternGeo, patternSearch string) Router {
 }
 
 func (r *Router) StartRouter() {
+	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
+	_ = tokenAuth
 	r.chi.Use(middleware.Recoverer)
 	r.chi.Use(middleware.Logger)
 
-	r.chi.Post(r.patternSearch, r.handler.SearchAddressHandler)
-	r.chi.Post(r.patternGeo, r.handler.GeocodeHandler)
-
 	r.chi.Get("/swagger/*", httpSwagger.WrapHandler)
+	r.chi.Post("/", controller.Login)
+	r.chi.Group(func(rout chi.Router) {
+		rout.Use(jwtauth.Verifier(tokenAuth))
+		rout.Use(jwtauth.Authenticator)
+
+		rout.Mount("/mycustompath/pprof", profiling.NewProfRouter())
+
+		r.chi.Post(r.patternSearch, r.handler.SearchAddressHandler)
+		r.chi.Post(r.patternGeo, r.handler.GeocodeHandler)
+	})
 
 	server := &http.Server{
 		Addr:         ":8080",

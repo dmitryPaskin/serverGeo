@@ -7,6 +7,7 @@ import (
 	"GeoAPI/internal/service"
 	"GeoAPI/internal/service/models"
 	"encoding/json"
+	"github.com/go-chi/jwtauth/v5"
 	"net/http"
 )
 
@@ -71,4 +72,14 @@ func (h *Handler) GeocodeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.r.RespondWithOk(w, geocode)
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
+	_, jwtToken, _ := tokenAuth.Encode(map[string]interface{}{"user": "user1"})
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Authorization", "Bearer "+jwtToken)
+	w.WriteHeader(http.StatusOK)
+
 }
