@@ -4,12 +4,14 @@ import (
 	_ "GeoAPI/docs"
 	"GeoAPI/internal/controller"
 	"GeoAPI/internal/controller/responder"
+	"GeoAPI/internal/metrics"
 	"GeoAPI/internal/profiling"
 	"GeoAPI/internal/service"
 	"context"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/jwtauth"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
@@ -42,12 +44,17 @@ func New(patternGeo, patternSearch string) Router {
 
 func (r *Router) StartRouter() {
 	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
-	_ = tokenAuth
+
+	metrics.New()
+
 	r.chi.Use(middleware.Recoverer)
 	r.chi.Use(middleware.Logger)
 
 	r.chi.Get("/swagger/*", httpSwagger.WrapHandler)
 	r.chi.Post("/", controller.Login)
+
+	r.chi.Handle("/metrics", promhttp.Handler())
+
 	r.chi.Group(func(rout chi.Router) {
 		rout.Use(jwtauth.Verifier(tokenAuth))
 		rout.Use(jwtauth.Authenticator)

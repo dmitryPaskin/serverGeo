@@ -1,5 +1,27 @@
 version: '3'
+
 services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - web
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Пароль для администратора Grafana
+      - GF_USERS_ALLOW_SIGN_UP=false      # Запретить регистрацию новых пользователей
+    depends_on:
+      - prometheus
+
   web:
     build: .
     ports:
@@ -14,7 +36,6 @@ services:
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: postgres
-
 
   db:
     image: postgres:latest
